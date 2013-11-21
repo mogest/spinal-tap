@@ -5,6 +5,15 @@ Yet another simple Javascript model framework.  If you use Rails, you'll feel ri
 
 Note this is all very new and probably shouldn't be used in production until it has tests.
 
+Dependencies
+------------
+
+* [jQuery] [1]
+* [Underscore.js] [2]
+
+  [1]: http://jquery.com
+  [2]: http://underscorejs.com
+
 An example of how to use it
 ---------------------------
 
