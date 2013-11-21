@@ -12,7 +12,7 @@ Dependencies
 * [Underscore.js] [2]
 
   [1]: http://jquery.com
-  [2]: http://underscorejs.com
+  [2]: http://underscorejs.org
 
 An example of how to use it
 ---------------------------
