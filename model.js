@@ -33,7 +33,7 @@
     makeRecordClass: function() {
       var model = this;
       var recordClass = function() {
-        var args = Array.prototype.slice(arguments);
+        var args = Array.prototype.slice.call(arguments);
         SpinalTap.Record.apply(this, [model].concat(args));
       };
 
@@ -68,9 +68,12 @@
       return this.first(_.extend({url: this.url + "/" + id}, opts));
     },
 
+    newRecord: function(attributes) {
+      return new this.recordClass(attributes);
+    },
+
     create: function(attributes) {
-      var record = new this.recordClass(attributes);
-      return record.save();
+      return this.newRecord(attributes).save();
     }
   });
 
