@@ -6,7 +6,7 @@
     this.eventSink = SpinalTap.$(this);
     this.opts = opts === void 0 ? {} : opts;
 
-    this.registerEvents();
+    this.registerEvents(this.events);
     this.setAttributes(attributes, {reset: true, persisted: this.opts.persisted});
     this.eventSink.trigger("afterInitialize");
   };
@@ -110,8 +110,8 @@
       return attributes;
     },
 
-    registerEvents: function() {
-      _.each(this.events,
+    registerEvents: function(events) {
+      _.each(events,
              function(object, eventName) { this.eventSink.on(eventName, object); },
              this);
     },

@@ -175,23 +175,99 @@ describe("SpinalTap.Record", function() {
   });
 
   describe("processSaveResults", function() {
+    it("sets the attributes with the result", function() {
+      var record = model.newRecord({old: "old data"});
+
+      spyOn(record, 'wireToAttributes').andReturn({data: "new data"});
+
+      var result = record.processSaveResults({data: "wire data"});
+
+      expect(result).toEqual(record);
+      expect(record.wireToAttributes).toHaveBeenCalledWith({data: "wire data"});
+      expect(record.attributes).toEqual({data: "new data"});
+      expect(record.persistedAttributes).toEqual(record.attributes);
+    });
+
+    it("triggers an afterSave event", function() {
+      var afterSaveData;
+      var record = model.extend({events: {afterSave: function(e, data) { afterSaveData = data; }}}).newRecord({old: "old data"});
+
+      record.processSaveResults({data: "wire data"});
+      expect(afterSaveData).toEqual({data: "wire data"});
+    });
   });
 
   describe("setAttributes", function() {
+    var record;
+
+    beforeEach(function() {
+      record = model.newRecord({name: "Joe Bloggs", age: 23, food: "cheese"}, {persisted: true});
+      record.attributes.furniture = "table";
+    });
+
+    it("by default adds to existing attributes, and does not mark persisted", function() {
+      record.setAttributes({age: 25, animal: "rat"});
+
+      expect(record.attributes).toEqual({name: "Joe Bloggs", age: 25, food: "cheese", furniture: "table", animal: "rat"});
+      expect(record.persistedAttributes).toEqual({name: "Joe Bloggs", age: 23, food: "cheese"});
+    });
+
+    it("resets the attributes object if told to", function() {
+      record.setAttributes({age: 25, animal: "rat"}, {reset: true});
+
+      expect(record.attributes).toEqual({age: 25, animal: "rat"});
+      expect(record.persistedAttributes).toEqual({});
+    });
+
+    it("marks the new attributes as persisted if told to", function() {
+      record.setAttributes({age: 25, animal: "rat"}, {persisted: true});
+
+      expect(record.attributes).toEqual({name: "Joe Bloggs", age: 25, food: "cheese", furniture: "table", animal: "rat"});
+      expect(record.persistedAttributes).toEqual({name: "Joe Bloggs", age: 25, food: "cheese", animal: "rat"});
+    });
   });
 
   describe("updateAttributes", function() {
+    it("set attributes and saves", function() {
+      var record = model.newRecord();
+
+      spyOn(record, "setAttributes").andReturn(record);
+      spyOn(record, "save").andReturn("result");
+
+      var result = record.updateAttributes({hello: "there"});
+
+      expect(result).toEqual("result");
+      expect(record.setAttributes).toHaveBeenCalledWith({hello: "there"}, undefined);
+    });
   });
 
   describe("wireToAttributesArray", function() {
+    it("returns what's passed to it", function() {
+      expect(model.newRecord().wireToAttributesArray("test")).toEqual("test");
+    });
   });
 
   describe("wireToAttributes", function() {
+    it("returns what's passed to it", function() {
+      expect(model.newRecord().wireToAttributes("test")).toEqual("test");
+    });
   });
 
   describe("attributesToWire", function() {
+    it("returns what's passed to it", function() {
+      expect(model.newRecord().attributesToWire("test")).toEqual("test");
+    });
   });
 
   describe("registerEvents", function() {
+    it("registers each event in the events object", function() {
+      var record = model.newRecord();
+
+      var testFired, notestFired;
+      record.registerEvents({test: function() { testFired = true; }, notest: function() { notestFired = true; }});
+      record.eventSink.trigger("test");
+      expect(testFired).toEqual(true);
+      expect(notestFired).toBeUndefined();
+    });
   });
 });
