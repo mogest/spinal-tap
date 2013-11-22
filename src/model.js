@@ -23,31 +23,28 @@
     },
 
     all: function(opts) {
-      var self = this;
-
-      opts = _.extend(this.defaultLoadOpts(), opts);
-
-      return SpinalTap.Persistence.load(opts).then(function(data) {
-        var attributesArray = self.recordClass.prototype.wireToAttributesArray(data);
-        return _.map(attributesArray, function(attributes) {
-          return self.newRecord(attributes, {persisted: true});
-        });
-      });
+      return SpinalTap.Persistence.load(opts).then(_.bind(this.processLoadArrayResults, this, opts));
     },
 
-    first: function(opts) {
-      var self = this;
-
-      opts = _.extend(this.defaultLoadOpts(), opts);
-
-      return SpinalTap.Persistence.load(opts).then(function(data) {
-        var attributes = self.recordClass.prototype.wireToAttributes(data);
-        return self.newRecord(attributes, {persisted: true});
-      });
+    one: function(opts) {
+      return SpinalTap.Persistence.load(opts).then(_.bind(this.processLoadRecordResults, this, opts));
     },
 
     find: function(id, opts) {
-      return this.first(_.extend({url: this.url + "/" + id}, opts));
+      return this.one(_.extend({url: this.url + "/" + id}, opts));
+    },
+
+    processLoadArrayResults: function(opts, data) {
+      var attributesArray = (opts && opts.resultProcessor || this.wireToAttributesArray)(data);
+
+      return _.map(attributesArray, 
+                   function(attributes) { return this.newRecord(attributes, {persisted: true}); },
+                   this);
+    },
+
+    processLoadRecordResults: function(opts, data) {
+      var attributes = (opts && opts.resultProcessor || this.wireToAttributes)(data);
+      return this.newRecord(attributes, {persisted: true});
     },
 
     newRecord: function(attributes, opts) {
@@ -58,8 +55,12 @@
       return this.newRecord(attributes, opts).save();
     },
 
-    defaultLoadOpts: function() {
-      return {url: this.url};
+    wireToAttributesArray: function(wireData) {
+      return wireData;
+    },
+
+    wireToAttributes: function(wireData) {
+      return wireData;
     },
   });
 }).call(this);

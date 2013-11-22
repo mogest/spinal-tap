@@ -94,7 +94,7 @@ describe("SpinalTap.Record", function() {
     it("calls wireToAttributes on the returned data and sets it using setAttributes", function() {
       var record = model.newRecord({id: 123, something: "else"});
       spyOn(SpinalTap.Persistence, "load").andReturn(jQuery.Deferred().resolve({id: 123, data: "new data"}));
-      spyOn(record, "wireToAttributes").andReturn({id: 123, data: "wireToAttributes new data"});
+      spyOn(record.model, "wireToAttributes").andReturn({id: 123, data: "wireToAttributes new data"});
 
       var latch = false;
 
@@ -168,7 +168,7 @@ describe("SpinalTap.Record", function() {
       waitsFor(function() { return latch; }, "expired waiting for done() to execute", 500);
 
       runs(function() {
-        expect(record.processSaveResults).toHaveBeenCalledWith({data: "old data"});
+        expect(record.processSaveResults).toHaveBeenCalledWith({some: "opts"}, {data: "old data"});
         expect(SpinalTap.Persistence.save).toHaveBeenCalledWith(record, {some: "opts"});
       });
     });
@@ -178,12 +178,12 @@ describe("SpinalTap.Record", function() {
     it("sets the attributes with the result", function() {
       var record = model.newRecord({old: "old data"});
 
-      spyOn(record, 'wireToAttributes').andReturn({data: "new data"});
+      spyOn(record.model, 'wireToAttributes').andReturn({data: "new data"});
 
-      var result = record.processSaveResults({data: "wire data"});
+      var result = record.processSaveResults({}, {data: "wire data"});
 
       expect(result).toEqual(record);
-      expect(record.wireToAttributes).toHaveBeenCalledWith({data: "wire data"});
+      expect(record.model.wireToAttributes).toHaveBeenCalledWith({data: "wire data"});
       expect(record.attributes).toEqual({data: "new data"});
       expect(record.persistedAttributes).toEqual(record.attributes);
     });
@@ -192,7 +192,7 @@ describe("SpinalTap.Record", function() {
       var afterSaveData;
       var record = model.extend({events: {afterSave: function(e, data) { afterSaveData = data; }}}).newRecord({old: "old data"});
 
-      record.processSaveResults({data: "wire data"});
+      record.processSaveResults({}, {data: "wire data"});
       expect(afterSaveData).toEqual({data: "wire data"});
     });
   });
@@ -238,18 +238,6 @@ describe("SpinalTap.Record", function() {
 
       expect(result).toEqual("result");
       expect(record.setAttributes).toHaveBeenCalledWith({hello: "there"}, undefined);
-    });
-  });
-
-  describe("wireToAttributesArray", function() {
-    it("returns what's passed to it", function() {
-      expect(model.newRecord().wireToAttributesArray("test")).toEqual("test");
-    });
-  });
-
-  describe("wireToAttributes", function() {
-    it("returns what's passed to it", function() {
-      expect(model.newRecord().wireToAttributes("test")).toEqual("test");
     });
   });
 

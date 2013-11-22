@@ -30,10 +30,9 @@
 
     getChangedAttributes: function() {
       var changed   = {},
-          attribs   = this.attributes,
           persisted = this.persistedAttributes;
 
-      _.each(attribs, 
+      _.each(this.attributes, 
              function(value, key) { if (value !== persisted[key]) changed[key] = value; });
 
       return changed;
@@ -44,13 +43,13 @@
     },
 
     reload: function(opts) {
-      var self = this;
-
       opts = _.extend({url: this.getURL()}, opts);
 
-      return SpinalTap.Persistence.load(opts).then(function(data) {
-        self.setAttributes(self.wireToAttributes(data), {reset: true, persisted: true});
-      });
+      var handleResults = function(newRecord) {
+        return this.setAttributes(newRecord.attributes, {reset: true, persisted: true});
+      };
+
+      return this.model.one(opts).then(_.bind(handleResults, this));
     },
 
     validate: function(deferred) {
@@ -59,18 +58,18 @@
 
     save: function(opts) {
       var validator = SpinalTap.$.Deferred();
-
       this.validate(validator);
 
       return validator.then(_.bind(this.saveWithoutValidation, this, opts));
     },
 
     saveWithoutValidation: function(opts) {
-      return SpinalTap.Persistence.save(this, opts).then(_.bind(this.processSaveResults, this));
+      return SpinalTap.Persistence.save(this, opts).then(_.bind(this.processSaveResults, this, opts));
     },
 
-    processSaveResults: function(data) {
-      this.setAttributes(this.wireToAttributes(data), {persisted: true, reset: true});
+    processSaveResults: function(opts, data) {
+      var attribs = (opts && opts.resultProcessor || this.model.wireToAttributes)(data);
+      this.setAttributes(attribs, {persisted: true, reset: true});
       this.eventSink.trigger("afterSave", data);
       return this;
     },
@@ -97,14 +96,6 @@
     },
 
     /* Converting between attributes hashes and what we send/receive on the wire */
-
-    wireToAttributesArray: function(wireData) {
-      return wireData;
-    },
-
-    wireToAttributes: function(wireData) {
-      return wireData;
-    },
 
     attributesToWire: function(attributes) {
       return attributes;

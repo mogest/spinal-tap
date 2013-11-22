@@ -2,9 +2,16 @@
   this.SpinalTap.Persistence = {
     // load
 
-    load: function(opts) {
-      opts = _.extend({dataType: "json"}, opts);
+    load: function(model_or_record, opts) {
+      opts = _.extend(this.defaultLoadOptions(model_or_record), opts);
       return SpinalTap.$.ajax(opts);
+    },
+
+    defaultLoadOptions: function(model_or_record) {
+      return {
+        url:      model_or_record.getURL ? model_or_record.getURL() : model_or_record.url, 
+        dataType: "json"
+      };
     },
 
     // save
