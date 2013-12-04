@@ -23,9 +23,9 @@ I'll have a better/more generic example here eventually, but this is a dump of w
   Prospect = new SpinalTap.Model({url: "http://localhost:3000/prospects"});
   Prospect.extend({
     events: {
-      "initialization": function(e)       { console.log("init"); },
-      "beforeSave":     function(e, opts) { console.log("before save", opts); },
-      "afterSave":      function(e, data) { console.log("after save", data); },
+      "afterInitialize": function(e)       { console.log("init"); },
+      "beforeSave":      function(e, opts) { console.log("before save", opts); },
+      "afterSave":       function(e, data) { console.log("after save", data); },
     },
 
     attributesToWire: function(attributes) {
