@@ -75,13 +75,20 @@
     },
 
     setAttributes: function(attributes, opts) {
+      var initialAttributes = this.attributes || {};
+
       if (opts && opts.reset) {
         this.attributes = this.a = {};
         this.persistedAttributes = {};
       }
 
       if (attributes !== void 0) {
-        _.extend(this.attributes, attributes);
+        for (var property in attributes) {
+          if (initialAttributes[property] !== attributes[property]) {
+            this.eventSink.trigger("attributeChange", {attribute: property, oldValue: initialAttributes[property]});
+          }
+          this.attributes[property] = attributes[property];
+        }
 
         if (opts && opts.persisted) {
           _.extend(this.persistedAttributes, attributes);
@@ -109,4 +116,7 @@
 
     // TODO : destroy
   });
+
+  SpinalTap.Record.prototype.set    = SpinalTap.Record.prototype.setAttributes;
+  SpinalTap.Record.prototype.update = SpinalTap.Record.prototype.updateAttributes;
 }).call(this);

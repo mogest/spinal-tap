@@ -225,6 +225,19 @@ describe("SpinalTap.Record", function() {
       expect(record.attributes).toEqual({name: "Joe Bloggs", age: 25, food: "cheese", furniture: "table", animal: "rat"});
       expect(record.persistedAttributes).toEqual({name: "Joe Bloggs", age: 25, food: "cheese", animal: "rat"});
     });
+
+    it("fires the changed event when attributes are changed", function() {
+      var ops = [];
+
+      record.eventSink.on("attributeChange", function(e, data) { ops.push(data); });
+      record.setAttributes({age: 25, animal: "rat"});
+
+      waitsFor(function() { return ops.length == 2; });
+
+      runs(function() {
+        expect(ops).toEqual([{attribute: "age", oldValue: 23}, {attribute: "animal", oldValue: undefined}]);
+      });
+    });
   });
 
   describe("updateAttributes", function() {
