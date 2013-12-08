@@ -84,10 +84,13 @@
 
       if (attributes !== void 0) {
         for (var property in attributes) {
-          if (initialAttributes[property] !== attributes[property]) {
-            this.eventSink.trigger("attributeChange", {attribute: property, oldValue: initialAttributes[property]});
-          }
+          var oldValue = initialAttributes[property];
+
           this.attributes[property] = attributes[property];
+
+          if (oldValue !== attributes[property]) {
+            this.eventSink.trigger("attributeChange", {attribute: property, oldValue: oldValue});
+          }
         }
 
         if (opts && opts.persisted) {
