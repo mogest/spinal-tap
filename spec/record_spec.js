@@ -270,5 +270,15 @@ describe("SpinalTap.Record", function() {
       expect(testFired).toEqual(true);
       expect(notestFired).toBeUndefined();
     });
+
+    it("calls the event from the context of the record", function() {
+      var record = model.newRecord();
+      var latch = false;
+
+      record.registerEvents({test: function() { expect(this).toEqual(record); latch = true; }});
+      record.eventSink.trigger("test");
+
+      waitsFor(function() { return latch; });
+    });
   });
 });

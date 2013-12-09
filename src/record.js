@@ -113,7 +113,7 @@
 
     registerEvents: function(events) {
       _.each(events,
-             function(object, eventName) { this.eventSink.on(eventName, object); },
+             function(fn, eventName) { this.eventSink.on(eventName, _.bind(fn, this)); },
              this);
     },
 
