@@ -52,7 +52,7 @@
     },
 
     create: function(attributes, opts) {
-      return this.newRecord(attributes, opts).save();
+      return this.newRecord(attributes, opts).save(opts);
     },
 
     wireToAttributesArray: function(wireData) {
