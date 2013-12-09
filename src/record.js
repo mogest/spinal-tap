@@ -45,11 +45,12 @@
     reload: function(opts) {
       opts = _.extend({url: this.getURL()}, opts);
 
-      var handleResults = function(newRecord) {
-        return this.setAttributes(newRecord.attributes, {reset: true, persisted: true});
+      var handleResults = function(data) {
+        var attributes = (opts && opts.resultProcessor || this.model.wireToAttributes)(data);
+        return this.setAttributes(attributes, {reset: true, persisted: true});
       };
 
-      return this.model.one(opts).then(_.bind(handleResults, this));
+      return SpinalTap.Persistence.load(opts).then(_.bind(handleResults, this));
     },
 
     validate: function(deferred) {
