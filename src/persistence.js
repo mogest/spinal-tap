@@ -8,10 +8,10 @@
     },
 
     defaultLoadOptions: function(model_or_record) {
-      return {
+      return _.extend({
         url:      model_or_record.getURL ? model_or_record.getURL() : model_or_record.url, 
         dataType: "json"
-      };
+      }, record.opts);
     },
 
     // save
@@ -23,12 +23,12 @@
     },
 
     defaultSaveOptions: function(record) {
-      return {
+      return _.extend({
         url:      record.getURL(),
         method:   record.isNew() ? "POST" : "PUT",
         data:     record.attributesToWire(record.getSaveableAttributes()),
         dataType: "json"
-      };
+      }, record.opts);
     },
   };
 }).call(this);
