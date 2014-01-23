@@ -50,7 +50,7 @@
         return this.setAttributes(attributes, {reset: true, persisted: true});
       };
 
-      return SpinalTap.Persistence.load(opts).then(_.bind(handleResults, this));
+      return SpinalTap.Persistence.load(opts).then(_.bind(handleResults, this), _.bind(this.handleFailure, this, opts));
     },
 
     validate: function(deferred) {
@@ -65,13 +65,19 @@
     },
 
     saveWithoutValidation: function(opts) {
-      return SpinalTap.Persistence.save(this, opts).then(_.bind(this.processSaveResults, this, opts));
+      return SpinalTap.Persistence.save(this, opts)
+        .then(_.bind(this.processSaveResults, this, opts), _.bind(this.handleFailure, this, opts))
     },
 
     processSaveResults: function(opts, data) {
       var attribs = (opts && opts.resultProcessor || this.model.wireToAttributes)(data);
       this.setAttributes(attribs, {persisted: true, reset: true});
       this.eventSink.trigger("afterSave", data);
+      return this;
+    },
+
+    handleFailure: function(opts, data) {
+      this.eventSink.trigger("afterFailure", data);
       return this;
     },
 
